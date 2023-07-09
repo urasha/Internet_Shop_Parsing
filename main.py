@@ -6,22 +6,20 @@ import requests
 import json
 import csv
 
+HEADERS = {
+    'User-Agent': fake_useragent.UserAgent().random,
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'
+}
+
 
 def download_items_links() -> None:
     """
     Get all links and put them in json file
     """
 
-    url = cfg.download_url
-
     all_links_ = list()
     for page_number in range(1, 10):
-        headers = {
-            'User-Agent': fake_useragent.UserAgent().random,
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'
-        }
-
-        src = requests.get(f'{url}/?PAGEN_1={page_number}', headers=headers).text
+        src = requests.get(f'{cfg.download_url}/?PAGEN_1={page_number}', headers=HEADERS).text
         soup = BeautifulSoup(src, 'lxml')
 
         all_href = [f'{cfg.base_url}{a.get("href")}' for a in soup.find_all('a', class_='catalog-item-link')]
@@ -36,12 +34,7 @@ def handler(link: str) -> None:
     Get information about product and put it in csv file
     """
 
-    headers = {
-        'User-Agent': fake_useragent.UserAgent().random,
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'
-    }
-
-    src = requests.get(link, headers=headers).text
+    src = requests.get(link, headers=HEADERS).text
     soup = BeautifulSoup(src, 'lxml')
 
     article = soup.find('div', class_='product-article').text.replace('арт. ', '')
